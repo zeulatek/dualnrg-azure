@@ -40,7 +40,7 @@
     }
 },
   "variables": {    
-    "TestVMAStoreName": "s4hanateststore",
+    "TestVMAStoreName": "s4hanadtlstore",
     "TestVMAStoreType": "Standard_LRS",
     "TestVMAVNetPrefix": "10.0.0.0/16",
     "TestVMAVNetSubnet1Name": "Subnet-1",
