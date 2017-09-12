@@ -1,0 +1,406 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {    
+    "TestVMAName": {
+      "type": "string",
+      "defaultValue": "TestVMAA",
+      "minLength": 1
+    },
+    "TestVMAAdminUserName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "TestVMAAdminPassword": {
+      "type": "securestring"
+    },    
+    "TestVMBName": {
+      "type": "string",
+      "defaultValue": "TestVMBB",
+      "minLength": 1
+    },
+    "TestVMBAdminUserName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "TestVMBAdminPassword": {
+      "type": "securestring"
+    },
+    "TestVMCName": {
+      "type": "string",
+      "defaultValue": "TestVMCC",
+      "minLength": 1
+    },
+    "TestVMCAdminUserName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "TestVMCAdminPassword": {
+      "type": "securestring"
+    }
+},
+  "variables": {    
+    "TestVMAStoreName": "s4hanateststore",
+    "TestVMAStoreType": "Standard_LRS",
+    "TestVMAVNetPrefix": "10.0.0.0/16",
+    "TestVMAVNetSubnet1Name": "Subnet-1",
+    "TestVMAVNetSubnet1Prefix": "10.0.0.0/24",
+    "TestVMAVNetSubnet2Name": "Subnet-2",
+    "TestVMAVNetSubnet2Prefix": "10.0.1.0/24",
+    "TestVMAImagePublisher": "SUSE",
+    "TestVMAImageOffer": "SLES",
+    "TestVMAOSDiskName": "TestVMAOSDisk",
+    "TestVMAVmSize": "Standard_D2_v2",
+    "TestVMAVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'TestVMAVNet')]",
+    "TestVMASubnetRef": "[concat(variables('TestVMAVnetID'), '/subnets/', variables('TestVMAVNetSubnet1Name'))]",
+    "TestVMAStorageAccountContainerName": "vhds",
+    "TestVMANicName": "[concat(parameters('TestVMAName'), 'NetworkInterface')]",
+    "TestVMBVNetPrefix": "10.0.0.0/16",
+    "TestVMBVNetSubnet1Name": "Subnet-1",
+    "TestVMBVNetSubnet1Prefix": "10.0.0.0/24",
+    "TestVMBVNetSubnet2Name": "Subnet-2",
+    "TestVMBVNetSubnet2Prefix": "10.0.1.0/24",
+    "TestVMBImagePublisher": "SUSE",
+    "TestVMBImageOffer": "SLES",
+    "TestVMBOSDiskName": "TestVMBOSDisk",
+    "TestVMBVmSize": "Standard_D2_v2",
+    "TestVMBVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'TestVMBVNet')]",
+    "TestVMBSubnetRef": "[concat(variables('TestVMBVnetID'), '/subnets/', variables('TestVMBVNetSubnet1Name'))]",
+    "TestVMBStorageAccountContainerName": "vhds",
+    "TestVMBNicName": "[concat(parameters('TestVMBName'), 'NetworkInterface')]",
+    "TestVMCVNetPrefix": "10.0.0.0/16",
+    "TestVMCVNetSubnet1Name": "Subnet-1",
+    "TestVMCVNetSubnet1Prefix": "10.0.0.0/24",
+    "TestVMCVNetSubnet2Name": "Subnet-2",
+    "TestVMCVNetSubnet2Prefix": "10.0.1.0/24",
+    "TestVMCImagePublisher": "SUSE",
+    "TestVMCImageOffer": "SLES",
+    "TestVMCOSDiskName": "TestVMCOSDisk",
+    "TestVMCVmSize": "Standard_D2_v2",
+    "TestVMCVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'TestVMCVNet')]",
+    "TestVMCSubnetRef": "[concat(variables('TestVMCVnetID'), '/subnets/', variables('TestVMCVNetSubnet1Name'))]",
+    "TestVMCStorageAccountContainerName": "vhds",
+    "TestVMCNicName": "[concat(parameters('TestVMCName'), 'NetworkInterface')]"},
+  "resources": [
+    {
+      "name": "[variables('TestVMAStoreName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-01-01",
+      "sku": {
+        "name": "[variables('TestVMAStoreType')]"
+      },
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "VM Image Storage"
+      },
+      "kind": "Storage"
+    },
+    {
+      "name": "TestVMAVNet",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "TestVMAVNet"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('TestVMAVNetPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('TestVMAVNetSubnet1Name')]",
+            "properties": {
+              "addressPrefix": "[variables('TestVMAVNetSubnet1Prefix')]"
+            }
+          },
+          {
+            "name": "[variables('TestVMAVNetSubnet2Name')]",
+            "properties": {
+              "addressPrefix": "[variables('TestVMAVNetSubnet2Prefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('TestVMANicName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'TestVMAVNet')]"
+      ],
+      "tags": {
+        "displayName": "TestVMANic"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('TestVMASubnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[parameters('TestVMAName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('TestVMAStoreName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('TestVMANicName'))]"
+      ],
+      "tags": {
+        "displayName": "TestVMA"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('TestVMAVmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('TestVMAName')]",
+          "adminUsername": "[parameters('TestVMAAdminUsername')]",
+          "adminPassword": "[parameters('TestVMAAdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('TestVMAImagePublisher')]",
+            "offer": "[variables('TestVMAImageOffer')]",
+            "sku": "12-SP3",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "TestVMAOSDisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('TestVMAStoreName')), '2016-01-01').primaryEndpoints.blob, variables('TestVMAStorageAccountContainerName'), '/', variables('TestVMAOSDiskName'), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('TestVMANicName'))]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "TestVMBVNet",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "TestVMBVNet"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('TestVMBVNetPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('TestVMBVNetSubnet1Name')]",
+            "properties": {
+              "addressPrefix": "[variables('TestVMBVNetSubnet1Prefix')]"
+            }
+          },
+          {
+            "name": "[variables('TestVMBVNetSubnet2Name')]",
+            "properties": {
+              "addressPrefix": "[variables('TestVMBVNetSubnet2Prefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('TestVMBNicName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'TestVMBVNet')]"
+      ],
+      "tags": {
+        "displayName": "TestVMBNic"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('TestVMBSubnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[parameters('TestVMBName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('TestVMAStoreName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('TestVMBNicName'))]"
+      ],
+      "tags": {
+        "displayName": "TestVMB"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('TestVMBVmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('TestVMBName')]",
+          "adminUsername": "[parameters('TestVMBAdminUsername')]",
+          "adminPassword": "[parameters('TestVMBAdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('TestVMBImagePublisher')]",
+            "offer": "[variables('TestVMBImageOffer')]",
+            "sku": "12-SP3",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "TestVMBOSDisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('TestVMAStoreName')), '2016-01-01').primaryEndpoints.blob, variables('TestVMBStorageAccountContainerName'), '/', variables('TestVMBOSDiskName'), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('TestVMBNicName'))]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "TestVMCVNet",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "TestVMCVNet"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('TestVMCVNetPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('TestVMCVNetSubnet1Name')]",
+            "properties": {
+              "addressPrefix": "[variables('TestVMCVNetSubnet1Prefix')]"
+            }
+          },
+          {
+            "name": "[variables('TestVMCVNetSubnet2Name')]",
+            "properties": {
+              "addressPrefix": "[variables('TestVMCVNetSubnet2Prefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('TestVMCNicName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'TestVMCVNet')]"
+      ],
+      "tags": {
+        "displayName": "TestVMCNic"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('TestVMCSubnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[parameters('TestVMCName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('TestVMAStoreName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('TestVMCNicName'))]"
+      ],
+      "tags": {
+        "displayName": "TestVMC"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('TestVMCVmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('TestVMCName')]",
+          "adminUsername": "[parameters('TestVMCAdminUsername')]",
+          "adminPassword": "[parameters('TestVMCAdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('TestVMCImagePublisher')]",
+            "offer": "[variables('TestVMCImageOffer')]",
+            "sku": "12-SP3",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "TestVMCOSDisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('TestVMAStoreName')), '2016-01-01').primaryEndpoints.blob, variables('TestVMCStorageAccountContainerName'), '/', variables('TestVMCOSDiskName'), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('TestVMCNicName'))]"
+            }
+          ]
+        }
+      }
+    }],
+  "outputs": {}
+}
