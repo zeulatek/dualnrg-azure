@@ -166,7 +166,7 @@
       },
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[variables('TestVMAVmSize')]"
+          "vmSize": "Standard_M64s"
         },
         "osProfile": {
           "computerName": "[parameters('TestVMAName')]",
