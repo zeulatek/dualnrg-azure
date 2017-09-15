@@ -1,0 +1,90 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "labName": {
+      "type": "string",
+      "defaultValue": "S4Hana-dtl"
+    },
+    "userObjectId": {
+      "type": "string",
+      "defaultValue": "@me"
+    },
+    "environmentName": {
+      "type": "string",
+      "defaultValue": "S4Hana-Demo-dtl"
+    },
+    "armParaName": {
+      "type": "string"
+    },
+    "armParaPassword": {
+      "type": "securestring"
+    },
+    "armPrimName": {
+      "type": "string",
+      "defaultValue": "East02S4DemoDT"
+    },
+    "armSecName": {
+      "type": "string",
+      "defaultValue": "East02B4DemoDT"
+    },
+    "armTerName": {
+      "type": "string",
+      "defaultValue": "East02B4BDemoDT"
+    },
+    "repoInternalName": {
+      "type": "string",
+      "defaultValue": "privaterepo25"
+    },
+    "armTemplateName": {
+      "type": "string",
+      "defaultValue": "sap-3vm"
+    }
+  },
+  "variables": {
+    "envName": "[concat(parameters('labName'), '/', parameters('userObjectId'), '/', parameters('environmentName'))]",
+    "templateId": "[resourceId('Microsoft.DevTestLab/labs/artifactSources/armTemplates', parameters('labName'), parameters('repoInternalName'), parameters('armTemplateName'))]",
+    "environmentId": "[resourceId ('Microsoft.DevTestLab/labs/environment', parameters('labName'), parameters('environmentName'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2016-05-15",
+      "type": "Microsoft.DevTestLab/labs/users/environments",
+      "name": "[variables('envName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "deploymentProperties":{
+          "parameters":[
+            {
+              "name":"VMAdminUserName",
+              "value":"[parameters('armParaName')]"
+            },
+            {
+              "name":"VMAdminUserPassword",
+              "value":"[parameters('armParaPassword')]"
+            },          
+            {
+              "name":"PrimaryVMName",
+              "value":"[parameters('armPrimName')]"
+            },
+            {
+              "name":"SecondaryVMName",
+              "value":"[parameters('armSecName')]"
+            },
+            {
+              "name":"TertiaryVMName",
+              "value":"[parameters('armTerName')]"
+            }            
+          ],
+          "armTemplateId":"[variables('templateId')]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "environmentId": {
+      "type": "string",
+      "value": "[variables('environmentId')]"
+    }
+  }
+}

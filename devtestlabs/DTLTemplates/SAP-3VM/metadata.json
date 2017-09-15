@@ -1,5 +1,5 @@
 {
-	"itemDisplayName": "SAP 3 VMs Environment.",
+	"itemDisplayName": "SAP HANA 3 VMs Test Environment.",
 	"description": "SAP environment with 3 VMs including a M size.",
     "githubUsername": "Ignite Conference"
 }

@@ -1,24 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {
-    "TestVMAAdminUserName": {
-      "value": "roger"
-    },
-    "TestVMAAdminPassword": {
-      "value": "ode#1ode1234"
-    },
-    "TestVMBAdminUserName": {
-      "value": "roger"
-    },
-    "TestVMBAdminPassword": {
-      "value": "ode#1ode1234"
-    },
-    "TestVMCAdminUserName": {
-      "value": "roger"
-    },
-    "TestVMCAdminPassword": {
-      "value": "ode#1ode1234"
-    }
+  "parameters": {    
   }
 }

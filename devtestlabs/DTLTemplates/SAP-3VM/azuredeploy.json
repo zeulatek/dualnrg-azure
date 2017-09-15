@@ -2,31 +2,28 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {    
-    "TestVMAName": {
-      "type": "string",
-      "defaultValue": "TestVMAA",
-      "minLength": 1
-    },
     "VMAdminUserName": {
       "type": "string",
       "minLength": 1
     },
     "VMAdminUserPassword": {
       "type": "securestring"
-    },    
-    "TestVMBName": {
+    },
+    "PrimaryVMName": {
+      "type": "string",      
+      "minLength": 1
+    },        
+    "SecondaryVMName": {
       "type": "string",
-      "defaultValue": "TestVMBB",
       "minLength": 1
     },
-    "TestVMCName": {
+    "TertiaryVMName": {
       "type": "string",
-      "defaultValue": "TestVMCC",
       "minLength": 1
     }
 },
   "variables": {    
-    "TestVMAStoreName": "s4hanadtlstore",
+    "TestVMAStoreName": "[toLower(concat('vmstorage', uniqueString(resourceGroup().id)))]",
     "TestVMAStoreType": "Standard_LRS",
     "TestVMAVNetPrefix": "10.0.0.0/16",
     "TestVMAVNetSubnet1Name": "Subnet-1",
@@ -40,7 +37,7 @@
     "TestVMAVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'TestVMAVNet')]",
     "TestVMASubnetRef": "[concat(variables('TestVMAVnetID'), '/subnets/', variables('TestVMAVNetSubnet1Name'))]",
     "TestVMAStorageAccountContainerName": "vhds",
-    "TestVMANicName": "[concat(parameters('TestVMAName'), 'NetworkInterface')]",
+    "TestVMANicName": "[concat(parameters('PrimaryVMName'), 'NetworkInterface')]",
     "TestVMBVNetPrefix": "10.0.0.0/16",
     "TestVMBVNetSubnet1Name": "Subnet-1",
     "TestVMBVNetSubnet1Prefix": "10.0.0.0/24",
@@ -53,7 +50,7 @@
     "TestVMBVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'TestVMBVNet')]",
     "TestVMBSubnetRef": "[concat(variables('TestVMBVnetID'), '/subnets/', variables('TestVMBVNetSubnet1Name'))]",
     "TestVMBStorageAccountContainerName": "vhds",
-    "TestVMBNicName": "[concat(parameters('TestVMBName'), 'NetworkInterface')]",
+    "TestVMBNicName": "[concat(parameters('SecondaryVMName'), 'NetworkInterface')]",
     "TestVMCVNetPrefix": "10.0.0.0/16",
     "TestVMCVNetSubnet1Name": "Subnet-1",
     "TestVMCVNetSubnet1Prefix": "10.0.0.0/24",
@@ -66,7 +63,7 @@
     "TestVMCVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'TestVMCVNet')]",
     "TestVMCSubnetRef": "[concat(variables('TestVMCVnetID'), '/subnets/', variables('TestVMCVNetSubnet1Name'))]",
     "TestVMCStorageAccountContainerName": "vhds",
-    "TestVMCNicName": "[concat(parameters('TestVMCName'), 'NetworkInterface')]"},
+    "TestVMCNicName": "[concat(parameters('TertiaryVMName'), 'NetworkInterface')]"},
   "resources": [
     {
       "name": "[variables('TestVMAStoreName')]",
@@ -139,7 +136,7 @@
       }
     },
     {
-      "name": "[parameters('TestVMAName')]",
+      "name": "[parameters('PrimaryVMName')]",
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-06-15",
@@ -155,7 +152,7 @@
           "vmSize": "Standard_M64s"
         },
         "osProfile": {
-          "computerName": "[parameters('TestVMAName')]",
+          "computerName": "[parameters('PrimaryVMName')]",
           "adminUsername": "[parameters('VMAdminUserName')]",
           "adminPassword": "[parameters('VMAdminUserPassword')]"
         },
@@ -241,7 +238,7 @@
       }
     },
     {
-      "name": "[parameters('TestVMBName')]",
+      "name": "[parameters('SecondaryVMName')]",
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-06-15",
@@ -257,7 +254,7 @@
           "vmSize": "[variables('TestVMBVmSize')]"
         },
         "osProfile": {
-          "computerName": "[parameters('TestVMBName')]",
+          "computerName": "[parameters('SecondaryVMName')]",
           "adminUsername": "[parameters('VMAdminUserName')]",
           "adminPassword": "[parameters('VMAdminUserPassword')]"
         },
@@ -343,7 +340,7 @@
       }
     },
     {
-      "name": "[parameters('TestVMCName')]",
+      "name": "[parameters('TertiaryVMName')]",
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-06-15",
@@ -359,7 +356,7 @@
           "vmSize": "[variables('TestVMCVmSize')]"
         },
         "osProfile": {
-          "computerName": "[parameters('TestVMCName')]",
+          "computerName": "[parameters('TertiaryVMName')]",
           "adminUsername": "[parameters('VMAdminUserName')]",
           "adminPassword": "[parameters('VMAdminUserPassword')]"
         },
