@@ -1,6 +1,6 @@
 
 $deployName = "S4HanaDemoDeployment"
-$updatedTemplateFilePath = "environmentdeploy.json"
+$updatedTemplateFilePath = "https://github.com/zeulatek/dualnrg-azure/blob/master/devtestlabs/Scripts/environmentdeploy.json"
 $DevTestLabName = "S4Hana-dtl"
 $machineUserName = "testuser"
 $machinePassword = ConvertTo-SecureString 'P@ss1worD' -AsPlainText -Force
@@ -14,6 +14,6 @@ $ResourceGroupName = (Find-AzureRmResource -ResourceType 'Microsoft.DevTestLab/l
 
 Write-Output "Starting Environment creation. $(Get-Date)"
 
-$vmDeployResult = New-AzureRmResourceGroupDeployment -Name $deployName -ResourceGroupName $ResourceGroupName -TemplateFile $updatedTemplateFilePath -labName $DevTestLabName -armParaName $machineUserName -armParaPassword $machinePassword
+$vmDeployResult = New-AzureRmResourceGroupDeployment -Name $deployName -ResourceGroupName $ResourceGroupName -TemplateFile $updatedTemplateFilePath -armParaName $machineUserName -armParaPassword $machinePassword
 
 Write-Output "Environment creation completed. $(Get-Date)"

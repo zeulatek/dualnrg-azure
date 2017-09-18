@@ -38,7 +38,7 @@
     },
     "armTemplateName": {
       "type": "string",
-      "defaultValue": "sap-3vm"
+      "defaultValue": "SAP-3VM"
     }
   },
   "variables": {
